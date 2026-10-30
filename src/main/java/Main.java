@@ -25,7 +25,8 @@ public class Main {
 
         //create new server
         ServerSocket server = new ServerSocket(8080);
-        System.out.println("Server run at  port 8080");
+        System.out.println("Server run at http://localhost:8080/");
+
         while (true) {
             Socket client = server.accept();
             System.out.println("client connected...");
@@ -35,13 +36,33 @@ public class Main {
             System.out.println(requestline);
 
         String header ="";
+        int contentLength =0;
         while((header=readhttpline(in))!=null&&!header.isEmpty()){
+            if(header.toLowerCase().startsWith("content-length:")){
+                contentLength = Integer.parseInt(header.substring(header.indexOf(':')+1).trim());
+
+            }
             System.out.println(header);
 
             }
+            byte[] requestBody = new byte[contentLength];
+            int totalread = 0;
 
+            while (totalread < contentLength) {
+                int count = in.read(
+                        requestBody,
+                        totalread,
+                        contentLength - totalread
+                );
 
+                if (count == -1) {
+                    break;
+                }
 
+                totalread += count;
+            }
+
+            System.out.println("Total bytes received: " + totalread);
 
 
 
