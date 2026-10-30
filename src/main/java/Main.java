@@ -34,7 +34,11 @@ public class Main {
             String requestline = readhttpline(in);
             System.out.println(requestline);
 
+        String header ="";
+        while((header=readhttpline(in))!=null&&!header.isEmpty()){
+            System.out.println(header);
 
+            }
 
 
 
