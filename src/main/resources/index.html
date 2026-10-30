@@ -2,9 +2,29 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Pocket-BridgeX</title>
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
+
+<img  width = "140" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZFgFqSFmyqrLWHM5ElGqIVQyDU54EFupMSQX3_peUWw&s=10" alt="image">
+<h1>Pocket-BridgeX</h1>
+<p>Transfer files between your phone and laptop.</p>
+<p>Select a file from your device and send it to your laptop using
+    Pocket-BridgeX.</p>
+
+<img width="50" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTehr9gUK2uIV8hAjCbNSvskVX39TXXLVEKV5L3OnkxOg&s=10" alt="image">
+<form action="/upload" enctype="multipart/form-data" method="post">
+    <label for="file">Choose a file:</label>
+    <input type="file"
+           id = "file"
+           name="document"
+           placeholder="choose file"
+           required
+    >
+    <button type="submit">Upload File</button>
+
+</form>
 
 </body>
 </html>
