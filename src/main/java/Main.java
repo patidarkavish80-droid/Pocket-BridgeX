@@ -43,7 +43,7 @@ public class Main {
         return Arrays.copyOfRange(requestbody,start,end);
 
     }
-    private static int findfilestart (byte[]requestbody){
+    private static int findfilestart (byte[] requestbody){
         String text = new String(requestbody, StandardCharsets.ISO_8859_1);
 
         int  position = text.indexOf("\r\n\r\n");
@@ -52,6 +52,21 @@ public class Main {
             return -1;
         }
         return position+4;
+
+    }
+    private static int indexof(byte[]data,byte[]target){
+        for(int i=0;i<=data.length-target.length;i++){
+            boolean match  = true;
+            for(int j=0;j<target.length;j++){
+                if(data[i+j]!=target[j]){
+                    match=false;
+                    break;
+                }
+            }if(match){
+                return i;
+            }
+        }
+        return -1;
 
     }
 
@@ -69,6 +84,11 @@ public class Main {
             InputStream in = client.getInputStream();
             String requestline = readhttpline(in);
             System.out.println(requestline);
+
+            if (requestline == null) {
+                continue;
+            }
+
 
             String header = "";
             String statusText = " ";
@@ -143,9 +163,33 @@ public class Main {
 
                         byte[] fileBytes = findfilebyte(requestBody, boundary);
 
-                        System.out.println("File bytes received: " + fileBytes.length);
+
+                        Path uploaddir = Path.of("uploads").toAbsolutePath().normalize();
+
+                        if (!Files.exists(uploaddir)) {
+                            Files.createDirectories(uploaddir);
+                        }
+
+                        if (!Files.isDirectory(uploaddir)) {
+                            throw new IOException("uploads is not a directory");
+                        }
+
+                        String SafeName = Path.of(fileName).getFileName().toString();
+                        Path savePath  = uploaddir.resolve(SafeName);
+
+                        Files.write(savePath,fileBytes);
+                        System.out.println("FileName : "+savePath.toAbsolutePath());
 
                     }
+                    statusCode = 200;
+                    statusText = "OK";
+                    body = "File request received! Bytes: " + totalRead;
+
+                    System.out.println("Received bytes: " + totalRead);
+                    System.out.println("Content-Type: " + contentType);
+                    System.out.println("Boundary: " + boundary);
+
+                    System.out.println("Request body received successfully!");
 
                 }
                 else if (!method.equals("GET")) {
