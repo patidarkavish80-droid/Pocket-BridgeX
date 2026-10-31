@@ -2,6 +2,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -75,6 +76,9 @@ public class Main {
 
         //create new server
         ServerSocket server = new ServerSocket(8080);
+
+        System.out.println("Open on phone: http://" +
+                InetAddress.getLocalHost().getHostAddress() + ":8080");
         System.out.println("Server run at http://localhost:8080/");
 
         while (true) {
