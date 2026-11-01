@@ -98,7 +98,7 @@ public class Main {
                     continue;
                 }
 
-
+                Path downloadFile =null;
                 String header = "";
                 String statusText = " ";
                 int statusCode = 0;
@@ -244,15 +244,22 @@ public class Main {
                                 statusCode = 404;
                                 statusText = "Not Found";
                                 body = "404 Not Found";
-                            }}else if(path.equals("/files")){
+                            }
+                    }else if(path.equals("/files")){
                         Path uploaddir = Path.of("uploads").toAbsolutePath().normalize();
                         StringBuffer fileList = new StringBuffer();
                         if(Files.exists(uploaddir)&Files.isDirectory(uploaddir)){
                             try(var files = Files.list(uploaddir)){
                                 files.forEach((file->{
                                     System.out.println(file.getFileName());
-                                    fileList.append(file.getFileName().toString());
-                                    fileList.append("\n");
+                                 String name = file.getFileName().toString();
+                                    fileList.append("<a href='/download/")
+                                            .append(name)
+                                            .append("'>")
+                                            .append(name)
+                                            .append("</a><br>");
+
+
                                 }));
 
                             }
@@ -260,28 +267,64 @@ public class Main {
                         statusCode=200;
                         statusText="OK";
                         body=fileList.toString();
-                        contentType="text/plain;charset=UTF-8";
-
-
+                        contentType="text/html;charset=UTF-8";
 
                     }
+                    else if (path.startsWith("/download/")) {
 
-                     else {
+                        String filename = path.substring("/download/".length());
+                        Path uploadDir = Path.of("uploads").toAbsolutePath().normalize();
+                        Path filepath = uploadDir.resolve(filename).normalize();
+                        downloadFile = filepath;
+                        if(!filepath.startsWith(uploadDir)) {
+                            statusCode = 400;
+                            statusText = "Bad Request";
+                            body = "Invalid file path";
+                        }else if (!Files.exists(filepath)||!Files.isRegularFile(filepath)){
+                            statusCode=404;
+                            statusText="Not Found";
+                            body="File not found";
+                        }else{
+                            byte[] fileBytes = Files.readAllBytes(filepath);
+                            body=new String(fileBytes,StandardCharsets.UTF_8);
+                            statusCode=200;
+                            statusText="OK";
+
+                        }
+                        }else {
                         statusCode = 404;
                         statusText = "Not Found";
                         body = "404 Not Found";
                     }
+                    long responseLength;
 
-                    String response =
+                    if (downloadFile != null) {
+                        responseLength = Files.size(downloadFile);
+                    } else {
+                        responseLength = body.getBytes(StandardCharsets.UTF_8).length;
+                    }
+
+                    String responseHeaders =
                             "HTTP/1.1 " + statusCode + " " + statusText + "\r\n"
-                                    + "Content-Length:" + body.getBytes(StandardCharsets.UTF_8).length + "\r\n"
-                                    + "Content-Type: " + contentType + "\r\n"
+                                    + "Content-Length: " + responseLength + "\r\n"
+                                    + "Content-Type: " + (downloadFile != null
+                                    ? "application/octet-stream"
+                                    : contentType) + "\r\n"
+                                    + (downloadFile != null
+                                    ? "Content-Disposition: attachment; filename=\"" + downloadFile.getFileName() + "\"\r\n"
+                                    : "")
                                     + "Connection: close\r\n"
-                                    + "\r\n"
-                                    + body;
-
+                                    + "\r\n";
                     OutputStream out = client.getOutputStream();
-                    out.write(response.getBytes(StandardCharsets.UTF_8));
+
+                    out.write(responseHeaders.getBytes(StandardCharsets.UTF_8));
+
+                    if (downloadFile != null) {
+                        Files.copy(downloadFile, out);
+                    } else {
+                        out.write(body.getBytes(StandardCharsets.UTF_8));
+                    }
+
                     out.flush();
                 }
             } catch (Exception e) {
