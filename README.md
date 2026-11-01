@@ -17,6 +17,7 @@ Pocket-Bridge is a Java-based file transfer application that allows users to tra
 - Java
 - HTML
 - CSS
+- Java Script 
 - Java Networking (`ServerSocket`, `Socket`)
 - HTTP
 - Git and GitHub
