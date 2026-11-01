@@ -244,7 +244,27 @@ public class Main {
                                 statusCode = 404;
                                 statusText = "Not Found";
                                 body = "404 Not Found";
-                            }}
+                            }}else if(path.equals("/files")){
+                        Path uploaddir = Path.of("uploads").toAbsolutePath().normalize();
+                        StringBuffer fileList = new StringBuffer();
+                        if(Files.exists(uploaddir)&Files.isDirectory(uploaddir)){
+                            try(var files = Files.list(uploaddir)){
+                                files.forEach((file->{
+                                    System.out.println(file.getFileName());
+                                    fileList.append(file.getFileName().toString());
+                                    fileList.append("\n");
+                                }));
+
+                            }
+                        }
+                        statusCode=200;
+                        statusText="OK";
+                        body=fileList.toString();
+                        contentType="text/plain;charset=UTF-8";
+
+
+
+                    }
 
                      else {
                         statusCode = 404;
@@ -277,5 +297,4 @@ public class Main {
         }
     }
 }
-
 
