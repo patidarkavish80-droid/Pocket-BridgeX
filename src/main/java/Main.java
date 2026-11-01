@@ -195,7 +195,7 @@ public class Main {
                         }
                         statusCode = 200;
                         statusText = "OK";
-                        body = "File request received! Bytes: " + totalRead;
+                        body = "File uploaded successfully!";
 
                         System.out.println("Received bytes: " + totalRead);
                         System.out.println("Content-Type: " + contentType);
@@ -232,8 +232,21 @@ public class Main {
                             statusCode = 404;
                             statusText = "Not Found";
                             body = "404 Not Found";
-                        }
-                    } else {
+                        }}else if (path.equals("/script.js")) {
+                            Path filePath = Path.of("src/main/resources/script.js");
+
+                            if (Files.exists(filePath)) {
+                                statusCode = 200;
+                                statusText = "OK";
+                                contentType = "text/javascript; charset=UTF-8";
+                                body = Files.readString(filePath);
+                            } else {
+                                statusCode = 404;
+                                statusText = "Not Found";
+                                body = "404 Not Found";
+                            }}
+
+                     else {
                         statusCode = 404;
                         statusText = "Not Found";
                         body = "404 Not Found";
@@ -259,13 +272,6 @@ public class Main {
                     client.close();
                 } catch (IOException e) {
                     System.out.println("Error closing client");
-
-                } finally {
-                    try {
-                        client.close();
-                    } catch (IOException e) {
-                        System.out.println("Error closing client");
-                    }
                 }
             }
         }
